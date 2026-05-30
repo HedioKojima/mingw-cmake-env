@@ -1,6 +1,6 @@
 ExternalProject_Add(
   libass
-  DEPENDS fontconfig
+  DEPENDS #fontconfig
           freetype2
           fribidi
           harfbuzz
@@ -14,7 +14,7 @@ ExternalProject_Add(
     ${meson_conf_args}
     -Dasm=enabled
     -Ddirectwrite=enabled
-    -Dfontconfig=enabled
+    #-Dfontconfig=enabled
     -Dlibunibreak=enabled
     -Dtest=disabled
     -Dcompare=disabled
