@@ -59,8 +59,10 @@ ExternalProject_Add(
     #--enable-amf
     --enable-cross-compile
     --enable-ffmpeg
-    --enable-ffplay
-    --enable-ffprobe
+    --disable-ffplay
+    --disable-ffprobe
+    --disable-avdevice
+    --disable-mediafoundation
     --enable-lcms2
     #--enable-libaom
     --enable-libass
@@ -90,6 +92,16 @@ ExternalProject_Add(
     --enable-schannel
     #--enable-sdl2
     --enable-vulkan
+    --disable-muxers
+    --enable-muxer=image2
+    --enable-muxer=spdif
+    --enable-muxer=webp
+    --enable-muxer=avif
+    --disable-encoders
+    --enable-encoder=libwebp
+    --enable-encoder=png
+    --enable-encoder=libjxl
+    --enable-encoder=svtav1
     "--extra-libs='-lstdc++ -lpthread'" # libplacebo/shaderc
   BUILD_COMMAND ${MAKE}
   INSTALL_COMMAND ${MAKE} install
