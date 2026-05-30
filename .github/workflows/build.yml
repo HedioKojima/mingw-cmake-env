@@ -111,12 +111,6 @@ jobs:
           name: build-logs
           path: logs/
 
-      - name: Upload ffmpeg-full Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: ffmpeg-full
-          path: bin/ffmpeg-full-package
-
       - name: Upload ffmpeg Package
         uses: actions/upload-artifact@v7
         with:
