@@ -82,8 +82,8 @@ list(
   llvm
   winrt-headers
   uchardet
-  libsamplerate
-  rubberband
+  #libsamplerate
+  #rubberband
   zlib
   bzip2
   libjpeg
@@ -92,7 +92,7 @@ list(
   libiconv
   luajit
   fribidi
-  expat
+  #expat
   brotli
   zstd
   libpsl
@@ -101,7 +101,7 @@ list(
   harfbuzz
   graphengine
   libzimg
-  fontconfig
+  #fontconfig
   libunibreak
   libass
   libxml2
@@ -115,39 +115,39 @@ list(
   libplacebo
   dav1d
   svtav1
-  amf-headers
-  aom
-  lame
-  libvpx
+  #amf-headers
+  #aom
+  #lame
+  #libvpx
   libwebp
   nvcodec-headers
-  ogg
-  flac
-  opus
-  libopusenc
-  vorbis
-  theora
-  x264
-  x265
-  libvpl
+  #ogg
+  #flac
+  #opus
+  #libopusenc
+  #vorbis
+  #theora
+  #x264
+  #x265
+  #libvpl
   directx-headers
   highway
   libjxl
   fdk-aac
-  sdl2
-  sdl3
+  #sdl2
+  #sdl3
   spirv-headers
   ffmpeg
-  openal
+  #openal
   mujs
   mpv
   cjson
   minizip
   glew
   sqlite
-  quake3e
-  quake3e-urbanterror
-  xonotic
+  #quake3e
+  #quake3e-urbanterror
+  #xonotic
 )
 
 foreach(package IN LISTS ep)
