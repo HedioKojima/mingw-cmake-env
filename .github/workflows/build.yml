@@ -1,4 +1,5 @@
 name: build
+
 on:
   workflow_dispatch:
   schedule:
@@ -58,9 +59,6 @@ jobs:
       - name: Run Build
         run: |
           ninja -C build llvm
-          ninja -C build quake3e
-          ninja -C build quake3e-urbanterror
-          ninja -C build xonotic
           ninja -C build ffmpeg
           ninja -C build mpv
         shell: alpine.sh {0}
@@ -130,24 +128,6 @@ jobs:
         with:
           name: mpv
           path: bin/mpv-package
-
-      - name: Upload quake3e Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: quake3e
-          path: bin/quake3e-package
-
-      - name: Upload quake3e-urbanterror Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: quake3e-urbanterror
-          path: bin/quake3e-urbanterror-package
-
-      - name: Upload xonotic Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: xonotic
-          path: bin/xonotic-package
 
       - name: Delete Last Release
         run: gh release delete latest --cleanup-tag || true
