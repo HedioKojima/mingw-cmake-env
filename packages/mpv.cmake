@@ -9,11 +9,11 @@ ExternalProject_Add(
           libjpeg
           libplacebo
           libpng
-          sdl2
+          #sdl2
           luajit
           mujs
-          openal
-          rubberband
+          #openal
+          #rubberband
           shaderc
           spirv-cross
           uchardet
@@ -34,11 +34,11 @@ ExternalProject_Add(
     -Dlibcurl=enabled
     -Dlua=enabled
     -Dmanpage-build=disabled
-    -Dopenal=enabled
-    -Drubberband=enabled
-    -Dsdl2-audio=disabled
-    -Dsdl2-gamepad=enabled
-    -Dsdl2-video=disabled
+    #-Dopenal=enabled
+    #-Drubberband=enabled
+    #-Dsdl2-audio=disabled
+    #-Dsdl2-gamepad=enabled
+    #-Dsdl2-video=disabled
     -Dshaderc=enabled
     -Dspirv-cross=enabled
     -Duchardet=enabled
