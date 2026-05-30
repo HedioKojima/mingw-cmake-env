@@ -15,9 +15,7 @@ error() {
 build() {
   echo "Starting standard build..."
   ninja -C build update || error "Failed to update build"
-  ninja -C build quake3e || error "Failed to build quake3e"
-  ninja -C build quake3e-urbanterror || error "Failed to build quake3e-urbanterror"
-  ninja -C build xonotic || error "Failed to build xonotic"
+  # 【修改点 1】：删除了 quake3e, quake3e-urbanterror, xonotic
   ninja -C build ffmpeg || error "Failed to build ffmpeg"
   ninja -C build mpv || error "Failed to build mpv"
   echo "Standard build complete."
@@ -48,7 +46,8 @@ package() {
 archive() {
   echo "Creating archives..."
 
-  PACKAGES="ffmpeg ffmpeg-full mpv quake3e quake3e-urbanterror xonotic"
+  # 【修改点 2】：删除了 quake3e, quake3e-urbanterror, xonotic
+  PACKAGES="ffmpeg ffmpeg-full mpv"
 
   for pkg in $PACKAGES; do
     pkg_dir="${pkg}-package"
