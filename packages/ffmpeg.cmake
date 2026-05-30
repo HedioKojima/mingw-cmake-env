@@ -1,36 +1,36 @@
 ExternalProject_Add(
   ffmpeg
-  DEPENDS amf-headers
-          aom
+  DEPENDS #amf-headers
+          #aom
           bzip2
           dav1d
           fdk-aac
-          flac
-          fontconfig
+          #flac
+          #fontconfig
           harfbuzz
           lcms2
-          lame
+          #lame
           libass
           libjxl
-          libopusenc
+          #libopusenc
           libplacebo
           libpng
-          sdl2
-          libvpl
-          libvpx
+          #sdl2
+          #libvpl
+          #libvpx
           libwebp
           libxml2
           libzimg
           nvcodec-headers
-          rubberband
+          #rubberband
           shaderc
           spirv-cross
           spirv-headers
           svtav1
-          vorbis
+          #vorbis
           vulkan-loader
-          x264
-          x265
+          #x264
+          #x265
   GIT_REPOSITORY https://github.com/rorgoroth/librempeg.git
   GIT_SHALLOW 1
   UPDATE_COMMAND ""
@@ -44,7 +44,7 @@ ExternalProject_Add(
     --target-exec=wine
     --pkg-config-flags=--static
     --disable-debug
-    --disable-decoder=libaom_av1
+    #--disable-decoder=libaom_av1
     --disable-doc
     --disable-htmlpages
     --disable-hwaccel=prores_vulkan
@@ -56,31 +56,31 @@ ExternalProject_Add(
     --disable-vdpau
     --disable-videotoolbox
     --enable-agpl --enable-gpl --enable-version3 --enable-nonfree
-    --enable-amf
+    #--enable-amf
     --enable-cross-compile
     --enable-ffmpeg
     --enable-ffplay
     --enable-ffprobe
     --enable-lcms2
-    --enable-libaom
+    #--enable-libaom
     --enable-libass
     --enable-libdav1d
     --enable-libfdk-aac
-    --enable-libfontconfig
+    #--enable-libfontconfig
     --enable-libharfbuzz
     --enable-libjxl
-    --enable-libmp3lame
-    --enable-libopus
+    #--enable-libmp3lame
+    #--enable-libopus
     --enable-libplacebo
-    --enable-librubberband
+    #--enable-librubberband
     --enable-libshaderc
     --enable-libsvtav1
-    --enable-libvorbis
-    --enable-libvpl
-    --enable-libvpx
+    #--enable-libvorbis
+    #--enable-libvpl
+    #--enable-libvpx
     --enable-libwebp
-    --enable-libx264
-    --enable-libx265
+    #--enable-libx264
+    #--enable-libx265
     --enable-libxml2
     --enable-libzimg
     --enable-lto=thin
@@ -88,7 +88,7 @@ ExternalProject_Add(
     --enable-nvenc
     --enable-runtime-cpudetect
     --enable-schannel
-    --enable-sdl2
+    #--enable-sdl2
     --enable-vulkan
     "--extra-libs='-lstdc++ -lpthread'" # libplacebo/shaderc
   BUILD_COMMAND ${MAKE}
