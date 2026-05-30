@@ -107,20 +107,4 @@ ExternalProject_Add_Step(
     <BINARY_DIR>/ffmpeg.exe
     ${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-package/ffmpeg.exe)
 
-ExternalProject_Add_Step(
-  ffmpeg full-copy-binary
-  DEPENDEES install
-  COMMAND
-    ${CMAKE_COMMAND} -E copy
-    <BINARY_DIR>/ffmpeg.exe
-    ${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-full-package/ffmpeg.exe
-  COMMAND
-    ${CMAKE_COMMAND} -E copy
-    <BINARY_DIR>/ffplay.exe
-    ${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-full-package/ffplay.exe
-  COMMAND
-    ${CMAKE_COMMAND} -E copy
-    <BINARY_DIR>/ffprobe.exe
-    ${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-full-package/ffprobe.exe)
-
 force_rebuild_git(ffmpeg)
