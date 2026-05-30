@@ -47,7 +47,7 @@ archive() {
   echo "Creating archives..."
 
   # 【修改点 2】：删除了 quake3e, quake3e-urbanterror, xonotic
-  PACKAGES="ffmpeg ffmpeg-full mpv"
+  PACKAGES="ffmpeg mpv"
 
   for pkg in $PACKAGES; do
     pkg_dir="${pkg}-package"
