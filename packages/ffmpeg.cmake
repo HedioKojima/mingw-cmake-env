@@ -69,6 +69,7 @@ ExternalProject_Add(
     --enable-libfdk-aac
     #--enable-libfontconfig
     --enable-libharfbuzz
+    --enable-libpng
     --enable-libjxl
     #--enable-libmp3lame
     #--enable-libopus
@@ -93,8 +94,7 @@ ExternalProject_Add(
     --enable-vulkan
     --disable-encoders
     --enable-encoder=libwebp
-    --enable-encoder=png
-    --enable-encoder=mjpeg
+    --enable-encoder=libpng
     --enable-encoder=libjxl
     --enable-encoder=svtav1
     "--extra-libs='-lstdc++ -lpthread'" # libplacebo/shaderc
