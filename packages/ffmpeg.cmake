@@ -69,7 +69,6 @@ ExternalProject_Add(
     --enable-libfdk-aac
     #--enable-libfontconfig
     --enable-libharfbuzz
-    --enable-libpng
     --enable-libjxl
     #--enable-libmp3lame
     #--enable-libopus
