@@ -58,7 +58,6 @@ ExternalProject_Add(
     --enable-agpl --enable-gpl --enable-version3 --enable-nonfree
     #--enable-amf
     --enable-cross-compile
-    --enable-ffmpeg
     --disable-ffplay
     --disable-ffprobe
     --disable-avdevice
@@ -92,14 +91,10 @@ ExternalProject_Add(
     --enable-schannel
     #--enable-sdl2
     --enable-vulkan
-    --disable-muxers
-    --enable-muxer=image2
-    --enable-muxer=spdif
-    --enable-muxer=webp
-    --enable-muxer=avif
     --disable-encoders
     --enable-encoder=libwebp
     --enable-encoder=png
+    --enable-encoder=mjpeg
     --enable-encoder=libjxl
     --enable-encoder=svtav1
     "--extra-libs='-lstdc++ -lpthread'" # libplacebo/shaderc
@@ -110,13 +105,5 @@ ExternalProject_Add(
   LOG_CONFIGURE 1
   LOG_BUILD 1
   LOG_INSTALL 1)
-
-ExternalProject_Add_Step(
-  ffmpeg copy-binary
-  DEPENDEES install
-  COMMAND
-    ${CMAKE_COMMAND} -E copy
-    <BINARY_DIR>/ffmpeg.exe
-    ${CMAKE_CURRENT_BINARY_DIR}/ffmpeg-package/ffmpeg.exe)
 
 force_rebuild_git(ffmpeg)
