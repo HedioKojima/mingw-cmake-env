@@ -6,7 +6,8 @@ ExternalProject_Add(
           harfbuzz
           libiconv
           libunibreak
-  GIT_REPOSITORY https://github.com/libass/libass.git
+  GIT_REPOSITORY https://github.com/rcombs/libass.git
+  GIT_TAG threading
   GIT_SHALLOW 1
   UPDATE_COMMAND ""
   CONFIGURE_COMMAND
@@ -16,6 +17,7 @@ ExternalProject_Add(
     -Ddirectwrite=enabled
     #-Dfontconfig=enabled
     -Dlibunibreak=enabled
+    -Dthreads=enabled
     -Dtest=disabled
     -Dcompare=disabled
     -Dprofile=disabled
