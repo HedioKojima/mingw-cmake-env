@@ -48,7 +48,7 @@ jobs:
 
       - name: Setup CMake
         run: |
-          cmake -Bbuild -G Ninja -DCPUTUNE=x86-64-v3 -DOPTIM=O2
+          cmake -Bbuild -G Ninja -DCPUTUNE=x86-64-v3 -DOPTIM=O3
         shell: alpine.sh {0}
 
       - name: Run Update
