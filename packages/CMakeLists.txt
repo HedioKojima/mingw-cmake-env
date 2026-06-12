@@ -130,7 +130,7 @@ list(
   #x264
   #x265
   #libvpl
-  directx-headers
+  #directx-headers
   highway
   libjxl
   fdk-aac
@@ -141,10 +141,10 @@ list(
   #openal
   mujs
   mpv
-  cjson
-  minizip
-  glew
-  sqlite
+  #cjson
+  #minizip
+  #glew
+  #sqlite
   #quake3e
   #quake3e-urbanterror
   #xonotic
