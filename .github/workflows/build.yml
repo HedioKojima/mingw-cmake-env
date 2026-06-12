@@ -1,10 +1,8 @@
 name: build
-
 on:
   workflow_dispatch:
   #schedule:
     #- cron: '0 0 * * *'
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -109,30 +107,71 @@ jobs:
         with:
           name: build-logs
           path: logs/
-          
+
+      - name: Job Summary
+        uses: actions/github-script@main
+        if: always()
+        with:
+          script: |
+            const path = require('path');
+            const { readdirSync, existsSync } = require('fs');
+            const myExec = async (command, args = null) => await exec.getExecOutput(command, args, { silent: true }).then(result => result.stdout.trim()).catch(err => '');
+
+            const rootdir = process.cwd();
+            const workdir = path.resolve(rootdir, "build");
+            const isGitSync = dirname => existsSync(path.join(workdir, dirname, '.git'));
+
+            const getGithubUrl = (hash, remote) => remote.replace(/\.git$/, "") + `/commit/${hash}`;
+            function getCommitUrl(hash, remote) {
+                let url = "";
+                switch (true) {
+                    case /github\.com/.test(remote):
+                        url = getGithubUrl(hash, remote);
+                        break;
+                    default:
+                        url = remote;
+                        break;
+                }
+                return url;
+            }
+            async function repo_info(dir) {
+                let local_hash = await myExec(`git -C ${dir} rev-parse --short=7 HEAD`);
+                let remote_branch = await myExec(`git -C ${dir} rev-parse --abbrev-ref HEAD@{upstream}`);
+                let remote_hash = await myExec(`git -C ${dir} rev-parse ${remote_branch}`);
+                let status = await myExec(`git -C ${dir} status -sb`).then(s => s.split("\n", 1)[0].replace(/^## */, ""));
+                let remote = await myExec(`git -C ${dir} config --get remote.origin.url`);
+                return [local_hash, remote_hash, status, remote]
+            }
+            async function generateGitInfoTable(targetDir) {
+                const dirs = readdirSync(targetDir, { withFileTypes: true })
+                    .filter(dirent => dirent.isDirectory() && isGitSync(dirent.name))
+                    .map(dirent => path.join(targetDir, dirent.name));
+                let info_table = [[{ data: 'Package', header: true }, { data: 'Local commit', header: true }, { data: 'Status', header: true }, { data: 'Remote commit', header: true }]];
+                for (let dir of dirs) {
+                    [local_hash, remote_hash, status, remote] = await repo_info(dir)
+                    let url = getCommitUrl(remote_hash, remote);
+                    let package_name = path.basename(dir);
+                    info_table.push([package_name, local_hash, status, `<a href="${url}">${remote_hash.slice(0, 7)}</a>`]);
+                }
+                return info_table;
+            }
+            await core.summary.clear();
+            let packages_table = await generateGitInfoTable(workdir);
+            packages_table = core.summary.addTable(packages_table).stringify();
+            await core.summary.clear();
+
+            const exec_path = path.join(rootdir, 'build', 'install', 'x86_64-w64-mingw32', 'bin');
+            const clang_version = (await myExec(path.join(exec_path, 'clang'), ["--version"])).split('\n')[0];
+            const gcc_version = (await myExec(path.join(exec_path, 'gcc'), ["--version"])).split('\n')[0];
+
+            core.summary
+                .addRaw(`Compiler:`, true)
+                .addRaw(`${clang_version}`, true)
+                .addRaw(`${gcc_version}`, true);
+            await core.summary.addDetails('Packages Version', packages_table).write();
+
       - name: Upload mpv Package
         uses: actions/upload-artifact@v7
         with:
           name: mpv
           path: bin/mpv-package
-
-      - name: Delete Last Release
-        run: gh release delete latest --cleanup-tag || true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Sleep
-        run: sleep 30s
-        shell: alpine.sh {0}
-
-      - name: Upload Releases
-        uses: svenstaro/upload-release-action@latest
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: bin/*.7z
-          tag: latest
-          release_name: latest
-          overwrite: true
-          file_glob: true
-          draft: false
-          make_latest: true
