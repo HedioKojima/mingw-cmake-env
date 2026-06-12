@@ -1,113 +1,3 @@
-name: build
-on:
-  workflow_dispatch:
-  #schedule:
-    #- cron: '0 0 * * *'
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Setup Alpine
-        uses: rorgoroth/setup-alpine@develop
-        with:
-          branch: edge
-
-      - name: Install Packages
-        run: |
-          rm /var/cache/apk/*
-          apk add 7zip autoconf automake bash ccache clang cmake coreutils curl diffutils g++ gawk gcc gettext-dev git gperf libtool lld llvm llvm-linker-tools make meson musl-dev nasm patch pkgconf po4a py3-jinja2 py3-mako samurai texinfo util-linux-misc yasm
-        shell: alpine.sh --root {0}
-
-      - name: Setup Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        shell: alpine.sh --root {0}
-
-      - name: Load Cached Build
-        uses: actions/cache/restore@main
-        with:
-          path: build
-          key: cached_build
-
-      - name: Load Cached LTO Cache
-        uses: actions/cache/restore@main
-        with:
-          path: build/install/x86_64-w64-mingw32/ltocache
-          key: ltocache
-
-      - name: Load Cached CCache
-        uses: actions/cache/restore@main
-        with:
-          path: build/install/x86_64-w64-mingw32/ccache
-          key: ccache
-
-      - name: Setup CMake
-        run: |
-          cmake -Bbuild -G Ninja -DCPUTUNE=x86-64-v3 -DOPTIM=O3
-        shell: alpine.sh {0}
-
-      - name: Run Update
-        run: |
-          ninja -C build update
-        shell: alpine.sh {0}
-
-      - name: Run Build
-        run: |
-          ninja -C build llvm
-          ninja -C build mpv
-        shell: alpine.sh {0}
-
-      - name: Clear GH Caches
-        uses: easimon/wipe-cache@main
-
-      - name: Save LTO Cache.
-        uses: actions/cache/save@main
-        with:
-          path: build/install/x86_64-w64-mingw32/ltocache
-          key: ltocache
-
-      - name: Save CCache
-        uses: actions/cache/save@main
-        with:
-          path: build/install/x86_64-w64-mingw32/ccache
-          key: ccache
-
-      - name: Clean Build Cache
-        run: |
-          bash -c "rm -rf build/install/x86_64-w64-mingw32/ltocache"
-          bash -c "rm -rf build/install/x86_64-w64-mingw32/ccache"
-        shell: alpine.sh {0}
-
-      - name: Save Build Cache
-        uses: actions/cache/save@main
-        with:
-          path: build
-          key: cached_build
-
-      - name: Run Packaging
-        run: |
-          sh run.sh package
-          sh run.sh archive
-        shell: alpine.sh {0}
-
-      - name: Save Build Logs
-        if: always()
-        run: |
-          mkdir -p logs
-          cp -fr $(find build -type f -iname "*-out.log") logs/ || true
-          cp -fr $(find build -type f -iname "*-err.log") logs/ || true
-        shell: alpine.sh {0}
-
-      - name: Upload Build Logs
-        uses: actions/upload-artifact@v6
-        if: always()
-        with:
-          name: build-logs
-          path: logs/
-
       - name: Job Summary
         uses: actions/github-script@main
         if: always()
@@ -119,59 +9,63 @@ jobs:
 
             const rootdir = process.cwd();
             const workdir = path.resolve(rootdir, "build");
-            const isGitSync = dirname => existsSync(path.join(workdir, dirname, '.git'));
+            
+            // mingw-cmake-env 的 ExternalProject 将源码下载在 build/<package>-prefix/src/<package>
+            const isGitSync = dirname => {
+              if (!dirname.endsWith('-prefix')) return false;
+              const pkg_name = dirname.replace(/-prefix$/, '');
+              return existsSync(path.join(workdir, dirname, 'src', pkg_name, '.git'));
+            };
 
-            const getGithubUrl = (hash, remote) => remote.replace(/\.git$/, "") + `/commit/${hash}`;
+            const getGithubUrl = (hash, remote) => remote.replace(/.git$/, "") + `/commit/${hash}`;
             function getCommitUrl(hash, remote) {
-                let url = "";
-                switch (true) {
-                    case /github\.com/.test(remote):
-                        url = getGithubUrl(hash, remote);
-                        break;
-                    default:
-                        url = remote;
-                        break;
-                }
-                return url;
+              let url = "";
+              switch (true) {
+                case /github.com/.test(remote):
+                  url = getGithubUrl(hash, remote);
+                  break;
+                default:
+                  url = remote;
+                  break;
+              }
+              return url;
             }
             async function repo_info(dir) {
-                let local_hash = await myExec(`git -C ${dir} rev-parse --short=7 HEAD`);
-                let remote_branch = await myExec(`git -C ${dir} rev-parse --abbrev-ref HEAD@{upstream}`);
-                let remote_hash = await myExec(`git -C ${dir} rev-parse ${remote_branch}`);
-                let status = await myExec(`git -C ${dir} status -sb`).then(s => s.split("\n", 1)[0].replace(/^## */, ""));
-                let remote = await myExec(`git -C ${dir} config --get remote.origin.url`);
-                return [local_hash, remote_hash, status, remote]
+              let local_hash = await myExec(`git -C ${dir} rev-parse --short=7 HEAD`);
+              let remote_branch = await myExec(`git -C ${dir} rev-parse --abbrev-ref HEAD@{upstream}`);
+              let remote_hash = await myExec(`git -C ${dir} rev-parse ${remote_branch}`);
+              let status = await myExec(`git -C ${dir} status -sb`).then(s => s.split("\n", 1)[0].replace(/^## \*/, ""));
+              let remote = await myExec(`git -C ${dir} config --get remote.origin.url`);
+              return [local_hash, remote_hash, status, remote]
             }
             async function generateGitInfoTable(targetDir) {
-                const dirs = readdirSync(targetDir, { withFileTypes: true })
-                    .filter(dirent => dirent.isDirectory() && isGitSync(dirent.name))
-                    .map(dirent => path.join(targetDir, dirent.name));
-                let info_table = [[{ data: 'Package', header: true }, { data: 'Local commit', header: true }, { data: 'Status', header: true }, { data: 'Remote commit', header: true }]];
-                for (let dir of dirs) {
-                    [local_hash, remote_hash, status, remote] = await repo_info(dir)
-                    let url = getCommitUrl(remote_hash, remote);
-                    let package_name = path.basename(dir);
-                    info_table.push([package_name, local_hash, status, `<a href="${url}">${remote_hash.slice(0, 7)}</a>`]);
-                }
-                return info_table;
+              const dirs = readdirSync(targetDir, { withFileTypes: true })
+                .filter(dirent => dirent.isDirectory() && isGitSync(dirent.name))
+                .map(dirent => {
+                  const pkg_name = dirent.name.replace(/-prefix$/, '');
+                  return path.join(targetDir, dirent.name, 'src', pkg_name);
+                });
+              let info_table = [[{ data: 'Package', header: true }, { data: 'Local commit', header: true }, { data: 'Status', header: true }, { data: 'Remote commit', header: true }]];
+              for (let dir of dirs) {
+                [local_hash, remote_hash, status, remote] = await repo_info(dir)
+                let url = getCommitUrl(remote_hash, remote);
+                let package_name = path.basename(dir);
+                info_table.push([package_name, local_hash, status, ` [${remote_hash.slice(0, 7)} ](${url})`]);
+              }
+              return info_table;
             }
             await core.summary.clear();
             let packages_table = await generateGitInfoTable(workdir);
             packages_table = core.summary.addTable(packages_table).stringify();
             await core.summary.clear();
 
-            const exec_path = path.join(rootdir, 'build', 'install', 'x86_64-w64-mingw32', 'bin');
-            const clang_version = (await myExec(path.join(exec_path, 'clang'), ["--version"])).split('\n')[0];
-            const gcc_version = (await myExec(path.join(exec_path, 'gcc'), ["--version"])).split('\n')[0];
+            // 使用 build/exec 包装脚本来获取编译器版本
+            const exec_path = path.join(rootdir, 'build', 'exec');
+            const clang_version = (await myExec(exec_path, ["x86_64-w64-mingw32-clang", "--version"])).split('\n')[0];
+            const gcc_version = (await myExec(exec_path, ["x86_64-w64-mingw32-gcc", "--version"])).split('\n')[0];
 
             core.summary
-                .addRaw(`Compiler:`, true)
-                .addRaw(`${clang_version}`, true)
-                .addRaw(`${gcc_version}`, true);
+              .addRaw(`Compiler:`, true)
+              .addRaw(`${clang_version}`, true)
+              .addRaw(`${gcc_version}`, true);
             await core.summary.addDetails('Packages Version', packages_table).write();
-
-      - name: Upload mpv Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: mpv
-          path: bin/mpv-package
