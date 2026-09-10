@@ -90,8 +90,10 @@ ExternalProject_Add(
     #--enable-sdl2
     --disable-muxers
     --enable-muxer=image2
+    --enable-muxer=webp
     --disable-encoders
     --enable-encoder=libjxl
+    --enable-encoder=libwebp
     --enable-encoder=png
     --enable-encoder=mjpeg
     --disable-decoder=aac_fixed,ac3_fixed,mp1,mp2,mp3,mp3adu,mp3on4
