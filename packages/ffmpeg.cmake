@@ -1,35 +1,35 @@
 ExternalProject_Add(
   ffmpeg
-  DEPENDS amf-headers
-          aom
+  DEPENDS #amf-headers
+          #aom
           bzip2
           dav1d
           fdk-aac
-          flac
-          fontconfig
+          #flac
+          #fontconfig
           harfbuzz
           lcms2
-          lame
+          #lame
           libass
           libjxl
-          libopusenc
+          #libopusenc
           libplacebo
           libpng
-          sdl2
-          libvpl
-          libvpx
+          #sdl2
+          #libvpl
+          #libvpx
           libwebp
           libxml2
           libzimg
           nvcodec-headers
-          rubberband
+          #rubberband
           spirv-cross
           spirv-headers
           svtav1
-          vorbis
+          #vorbis
           vulkan-loader
-          x264
-          x265
+          #x264
+          #x265
   GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg.git
   GIT_SHALLOW 1
 
@@ -56,38 +56,45 @@ ExternalProject_Add(
     --disable-vdpau
     --disable-videotoolbox
     --disable-vulkan
-    --enable-amf
+    #--enable-amf
     --enable-cross-compile
     --enable-ffmpeg
     --enable-ffprobe
     --enable-gpl --enable-version3 --enable-nonfree
     --enable-lcms2
-    --enable-libaom
+    #--enable-libaom
     --enable-libass
     --enable-libdav1d
     --enable-libfdk-aac
-    --enable-libfontconfig
+    #--enable-libfontconfig
     --enable-libharfbuzz
     --enable-libjxl
-    --enable-libmp3lame
-    --enable-libopus
+    #--enable-libmp3lame
+    #--enable-libopus
     --enable-libplacebo
-    --enable-librubberband
+    #--enable-librubberband
     --enable-libsvtav1
-    --enable-libvorbis
-    --enable-libvpl
-    --enable-libvpx
+    #--enable-libvorbis
+    #--enable-libvpl
+    #--enable-libvpx
     --enable-libwebp
-    --enable-libx264
-    --enable-libx265
+    #--enable-libx264
+    #--enable-libx265
     --enable-libxml2
     --enable-libzimg
     --enable-lto=thin
     --enable-nvdec
-    --enable-nvenc
+    #--enable-nvenc
     --enable-runtime-cpudetect
     --enable-schannel
-    --enable-sdl2
+    #--enable-sdl2
+    --disable-muxers
+    --enable-muxer=image2
+    --disable-encoders
+    --enable-encoder=libjxl
+    --enable-encoder=png
+    --enable-encoder=mjpeg
+    --disable-decoder=aac_fixed,ac3_fixed,mp1,mp2,mp3,mp3adu,mp3on4
     "--extra-libs='-lstdc++ -lpthread'" # libplacebo/shaderc
   BUILD_COMMAND ${MAKE}
   INSTALL_COMMAND ${MAKE} install
