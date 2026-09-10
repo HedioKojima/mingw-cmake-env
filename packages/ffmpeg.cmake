@@ -91,8 +91,10 @@ ExternalProject_Add(
     --disable-muxers
     --enable-muxer=image2
     --enable-muxer=webp
+    --enable-muxer=avif
     --disable-encoders
     --enable-encoder=libjxl
+    --enable-encoder=libsvtav1
     --enable-encoder=libwebp
     --enable-encoder=png
     --enable-encoder=mjpeg
