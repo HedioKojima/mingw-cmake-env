@@ -47,7 +47,7 @@ jobs:
 
       - name: Setup CMake
         run: |
-          cmake -Bbuild -G Ninja -DCPUTUNE=x86-64-v3 -DOPTIM=O2
+          cmake -Bbuild -G Ninja -DCPUTUNE=x86-64-v3 -DOPTIM=O3
         shell: alpine.sh {0}
 
       - name: Run Update
@@ -58,10 +58,10 @@ jobs:
       - name: Run Build
         run: |
           ninja -C build llvm
-          ninja -C build quake3e
-          ninja -C build quake3e-urbanterror
-          ninja -C build xonotic
-          ninja -C build librempeg
+          #ninja -C build quake3e
+          #ninja -C build quake3e-urbanterror
+          #ninja -C build xonotic
+          #ninja -C build librempeg
           ninja -C build ffmpeg
           ninja -C build mpv
         shell: alpine.sh {0}
