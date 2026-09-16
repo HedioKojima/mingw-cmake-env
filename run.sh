@@ -19,7 +19,7 @@ build() {
   #ninja -C build quake3e-urbanterror || error "Failed to build quake3e-urbanterror"
   #ninja -C build xonotic || error "Failed to build xonotic"
   #ninja -C build librempeg || error "Failed to build librempeg"
-  ninja -C build ffmpeg || error "Failed to build ffmpeg"
+  #ninja -C build ffmpeg || error "Failed to build ffmpeg"
   ninja -C build mpv || error "Failed to build mpv"
   echo "Standard build complete."
 }
@@ -49,7 +49,7 @@ package() {
 archive() {
   echo "Creating archives..."
 
-  PACKAGES="ffmpeg ffmpeg-full librempeg mpv quake3e quake3e-urbanterror xonotic"
+  PACKAGES="mpv"
 
   for pkg in $PACKAGES; do
     pkg_dir="${pkg}-package"
