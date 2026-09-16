@@ -1,178 +1,141 @@
 name: build
-on:
-  workflow_dispatch:
-  #schedule:
-    #- cron: '0 0 * * *'
-
+true:
+  workflow_dispatch: null
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+    - uses: actions/checkout@v6
+    - name: Setup Alpine
+      uses: rorgoroth/setup-alpine@develop
+      with:
+        branch: edge
+    - name: Install Packages
+      run: 'rm /var/cache/apk/*
 
-      - name: Setup Alpine
-        uses: rorgoroth/setup-alpine@develop
-        with:
-          branch: edge
+        apk add 7zip autoconf automake bash ccache clang cmake coreutils curl diffutils
+        g++ gawk gcc gettext-dev git gperf libtool lld llvm llvm-linker-tools make
+        meson musl-dev nasm patch pkgconf po4a py3-jinja2 py3-mako samurai texinfo
+        util-linux-misc yasm
 
-      - name: Install Packages
-        run: |
-          rm /var/cache/apk/*
-          apk add 7zip autoconf automake bash ccache clang cmake coreutils curl diffutils g++ gawk gcc gettext-dev git gperf libtool lld llvm llvm-linker-tools make meson musl-dev nasm patch pkgconf po4a py3-jinja2 py3-mako samurai texinfo util-linux-misc yasm
-        shell: alpine.sh --root {0}
+        '
+      shell: alpine.sh --root {0}
+    - name: Setup Git
+      run: 'git config --global user.name "github-actions[bot]"
 
-      - name: Setup Git
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        shell: alpine.sh --root {0}
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Load Cached Build
-        uses: actions/cache/restore@main
-        with:
-          path: build
-          key: cached_build
+        '
+      shell: alpine.sh --root {0}
+    - name: Load Cached Build
+      uses: actions/cache/restore@main
+      with:
+        path: build
+        key: cached_build
+    - name: Load Cached LTO Cache
+      uses: actions/cache/restore@main
+      with:
+        path: build/install/x86_64-w64-mingw32/ltocache
+        key: ltocache
+    - name: Load Cached CCache
+      uses: actions/cache/restore@main
+      with:
+        path: build/install/x86_64-w64-mingw32/ccache
+        key: ccache
+    - name: Setup CMake
+      run: 'cmake -Bbuild -G Ninja -DCPUTUNE=x86-64-v3 -DOPTIM=O3
 
-      - name: Load Cached LTO Cache
-        uses: actions/cache/restore@main
-        with:
-          path: build/install/x86_64-w64-mingw32/ltocache
-          key: ltocache
+        '
+      shell: alpine.sh {0}
+    - name: Run Update
+      run: 'ninja -C build update
 
-      - name: Load Cached CCache
-        uses: actions/cache/restore@main
-        with:
-          path: build/install/x86_64-w64-mingw32/ccache
-          key: ccache
+        '
+      shell: alpine.sh {0}
+    - name: Run Build
+      run: 'ninja -C build llvm
 
-      - name: Setup CMake
-        run: |
-          cmake -Bbuild -G Ninja -DCPUTUNE=x86-64-v3 -DOPTIM=O3
-        shell: alpine.sh {0}
+        #ninja -C build quake3e
 
-      - name: Run Update
-        run: |
-          ninja -C build update
-        shell: alpine.sh {0}
+        #ninja -C build quake3e-urbanterror
 
-      - name: Run Build
-        run: |
-          ninja -C build llvm
-          #ninja -C build quake3e
-          #ninja -C build quake3e-urbanterror
-          #ninja -C build xonotic
-          #ninja -C build librempeg
-          ninja -C build ffmpeg
-          ninja -C build mpv
-        shell: alpine.sh {0}
+        #ninja -C build xonotic
 
-      - name: Clear GH Caches
-        uses: easimon/wipe-cache@main
+        #ninja -C build librempeg
 
-      - name: Save LTO Cache.
-        uses: actions/cache/save@main
-        with:
-          path: build/install/x86_64-w64-mingw32/ltocache
-          key: ltocache
+        #ninja -C build ffmpeg
 
-      - name: Save CCache
-        uses: actions/cache/save@main
-        with:
-          path: build/install/x86_64-w64-mingw32/ccache
-          key: ccache
+        ninja -C build mpv
 
-      - name: Clean Build Cache
-        run: |
-          bash -c "rm -rf build/install/x86_64-w64-mingw32/ltocache"
-          bash -c "rm -rf build/install/x86_64-w64-mingw32/ccache"
-        shell: alpine.sh {0}
+        '
+      shell: alpine.sh {0}
+    - name: Clear GH Caches
+      uses: easimon/wipe-cache@main
+    - name: Save LTO Cache.
+      uses: actions/cache/save@main
+      with:
+        path: build/install/x86_64-w64-mingw32/ltocache
+        key: ltocache
+    - name: Save CCache
+      uses: actions/cache/save@main
+      with:
+        path: build/install/x86_64-w64-mingw32/ccache
+        key: ccache
+    - name: Clean Build Cache
+      run: 'bash -c "rm -rf build/install/x86_64-w64-mingw32/ltocache"
 
-      - name: Save Build Cache
-        uses: actions/cache/save@main
-        with:
-          path: build
-          key: cached_build
+        bash -c "rm -rf build/install/x86_64-w64-mingw32/ccache"
 
-      - name: Run Packaging
-        run: |
-          sh run.sh package
-          sh run.sh archive
-        shell: alpine.sh {0}
+        '
+      shell: alpine.sh {0}
+    - name: Save Build Cache
+      uses: actions/cache/save@main
+      with:
+        path: build
+        key: cached_build
+    - name: Run Packaging
+      run: 'sh run.sh package
 
-      - name: Save Build Logs
-        if: always()
-        run: |
-          mkdir -p logs
-          cp -fr $(find build -type f -iname "*-out.log") logs/ || true
-          cp -fr $(find build -type f -iname "*-err.log") logs/ || true
-        shell: alpine.sh {0}
+        sh run.sh archive
 
-      - name: Upload Build Logs
-        uses: actions/upload-artifact@v6
-        if: always()
-        with:
-          name: build-logs
-          path: logs/
+        '
+      shell: alpine.sh {0}
+    - name: Save Build Logs
+      if: always()
+      run: 'mkdir -p logs
 
-      - name: Upload ffmpeg-full Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: ffmpeg-full
-          path: bin/ffmpeg-full-package
+        cp -fr $(find build -type f -iname "*-out.log") logs/ || true
 
-      - name: Upload ffmpeg Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: ffmpeg
-          path: bin/ffmpeg-package
+        cp -fr $(find build -type f -iname "*-err.log") logs/ || true
 
-      - name: Upload librempeg Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: librempeg
-          path: bin/librempeg-package
-
-      - name: Upload mpv Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: mpv
-          path: bin/mpv-package
-
-      - name: Upload quake3e Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: quake3e
-          path: bin/quake3e-package
-
-      - name: Upload quake3e-urbanterror Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: quake3e-urbanterror
-          path: bin/quake3e-urbanterror-package
-
-      - name: Upload xonotic Package
-        uses: actions/upload-artifact@v7
-        with:
-          name: xonotic
-          path: bin/xonotic-package
-
-      - name: Delete Last Release
-        run: gh release delete latest --cleanup-tag || true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Sleep
-        run: sleep 30s
-        shell: alpine.sh {0}
-
-      - name: Upload Releases
-        uses: svenstaro/upload-release-action@latest
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: bin/*.7z
-          tag: latest
-          release_name: latest
-          overwrite: true
-          file_glob: true
-          draft: false
-          make_latest: true
+        '
+      shell: alpine.sh {0}
+    - name: Upload Build Logs
+      uses: actions/upload-artifact@v6
+      if: always()
+      with:
+        name: build-logs
+        path: logs/
+    - name: Upload mpv Package
+      uses: actions/upload-artifact@v7
+      with:
+        name: mpv
+        path: bin/mpv-package
+    - name: Delete Last Release
+      run: gh release delete latest --cleanup-tag || true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Sleep
+      run: sleep 30s
+      shell: alpine.sh {0}
+    - name: Upload Releases
+      uses: svenstaro/upload-release-action@latest
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: bin/*.7z
+        tag: latest
+        release_name: latest
+        overwrite: true
+        file_glob: true
+        draft: false
+        make_latest: true
