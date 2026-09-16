@@ -25,9 +25,14 @@ ExternalProject_Add(
     ${meson_conf_args}
     -Db_lto_mode=thin
     -Db_ndebug=true
+    -Dlibmpv=false
+    -Dtests=false
     -Dd3d11=enabled
     -Diconv=enabled
     #-Djavascript=enabled
+    -Dcplugins=disabled
+    -Dd3d9-hwaccel=disabled
+    -Ddirect3d=disabled
     -Djpeg=enabled
     -Dlcms2=enabled
     -Dlibcurl=enabled
