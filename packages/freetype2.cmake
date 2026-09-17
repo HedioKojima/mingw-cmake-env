@@ -1,7 +1,6 @@
 ExternalProject_Add(
   freetype2
   DEPENDS brotli
-          bzip2
           libpng
           zlib
   GIT_REPOSITORY https://github.com/freetype/freetype.git
