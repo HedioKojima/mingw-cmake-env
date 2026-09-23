@@ -99,6 +99,7 @@ ExternalProject_Add(
     --enable-encoder=png
     --enable-encoder=mjpeg
     --disable-decoder=aac_fixed,ac3_fixed,mp1,mp2,mp3,mp3adu,mp3on4
+    --enable-w32threads
     "--extra-libs='-lstdc++ -lpthread'" # libplacebo/shaderc
   BUILD_COMMAND ${MAKE}
   INSTALL_COMMAND ${MAKE} install
