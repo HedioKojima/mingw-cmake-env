@@ -65,6 +65,7 @@ ExternalProject_Add_Step(
   COMMAND
     ${EXEC} x86_64-w64-mingw32-strip -s
     <BINARY_DIR>/mpv.exe
+)
 
 ExternalProject_Add_Step(
   mpv copy-binary
