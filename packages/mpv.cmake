@@ -74,6 +74,7 @@ ExternalProject_Add_Step(
     ${CMAKE_COMMAND} -E copy
     <BINARY_DIR>/mpv.exe
     ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.exe
+)
 
 force_rebuild_git(mpv)
 force_meson_configure(mpv)
