@@ -47,6 +47,8 @@ ExternalProject_Add(
     -Duchardet=enabled
     -Dvulkan=enabled
     -Dwin32-smtc=enabled
+    -Dwin32-subsystem=console
+    -Dwin32-threads=enabled
     -Dzimg=enabled
     -Dzlib=enabled
   BUILD_COMMAND ${NINJA} -C <BINARY_DIR>
@@ -63,9 +65,6 @@ ExternalProject_Add_Step(
   COMMAND
     ${EXEC} x86_64-w64-mingw32-strip -s
     <BINARY_DIR>/mpv.exe
-  COMMAND
-    ${EXEC} x86_64-w64-mingw32-strip -s
-    <BINARY_DIR>/mpv.com)
 
 ExternalProject_Add_Step(
   mpv copy-binary
@@ -74,22 +73,6 @@ ExternalProject_Add_Step(
     ${CMAKE_COMMAND} -E copy
     <BINARY_DIR>/mpv.exe
     ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.exe
-  COMMAND
-    ${CMAKE_COMMAND} -E copy
-    <BINARY_DIR>/mpv.com
-    ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv.com
-  COMMAND
-    ${CMAKE_COMMAND} -E copy
-    <SOURCE_DIR>/etc/powershell-completion.ps1
-    ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/powershell-completion.ps1
-  COMMAND
-    ${CMAKE_COMMAND} -E copy
-    <SOURCE_DIR>/etc/mpv-register.bat
-    ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv-register.bat
-  COMMAND
-    ${CMAKE_COMMAND} -E copy
-    <SOURCE_DIR>/etc/mpv-unregister.bat
-    ${CMAKE_CURRENT_BINARY_DIR}/mpv-package/mpv-unregister.bat)
 
 force_rebuild_git(mpv)
 force_meson_configure(mpv)
